@@ -1,6 +1,10 @@
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
 
+#define VERSION "0.01"
+
+#define HISTSIZE 10 
+
 #ifdef F_OSC
 #define F_CPU F_OSC
 #endif

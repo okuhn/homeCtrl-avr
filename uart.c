@@ -25,7 +25,8 @@ volatile uint32_t sent = 0;
 
 const unsigned char ok_msg[] PROGMEM = " ok\r\n";
 const unsigned char err_msg[] PROGMEM = " error\r\n";
-const unsigned char hello_msg[] PROGMEM = "Welcome to homeCtrl\r\n";
+const unsigned char hello_msg[] PROGMEM = "Welcome to homeCtrl Version " VERSION " \r\n";
+const unsigned char version_msg[] PROGMEM = "v=homeCtrl Version " VERSION " \r\nv=Built " __DATE__ " " __TIME__ "\r\n";
 
 volatile unsigned char rbuf[BUFSIZE];
 volatile uint8_t rpos = 0;
@@ -54,31 +55,35 @@ void uart_putc(unsigned char c)
     sent++;
 }
 
-void uart_puts (const unsigned char *s) {
+void uart_puts(const unsigned char *s) {
     while (*s) {
         uart_putc(*s++);
     }
 }
 
-void uart_putps (const unsigned char *p) {
+void uart_putps(const unsigned char *p) {
     char c;
     while ((c = pgm_read_byte(p++)) != '\0') {
         uart_putc(c);
     }
 }
 
-void uart_ok (const unsigned char *s) {
+void uart_ok(const unsigned char *s) {
     uart_puts(s);
     uart_putps(ok_msg);
 } 
 
-void uart_err (const unsigned char *s) {
+void uart_err(const unsigned char *s) {
     uart_puts(s);
     uart_putps(err_msg);
 }
 
-void uart_greeting (void) {
+void uart_greeting(void) {
     uart_putps(hello_msg);
+} 
+
+void uart_version(void) {
+    uart_putps(version_msg);
 } 
 
 void uart_put_digit(uint8_t n) {
@@ -94,6 +99,23 @@ void uart_putn(uint8_t val, uint8_t lf) {
 	}
 }
 
+void uart_put_time(uint32_t time) {
+        uint32_t tmp_seconds = time + TZ_OFFSET;
+
+        uint8_t sec = tmp_seconds % 60;
+        tmp_seconds /= 60;
+
+        uint8_t min = tmp_seconds % 60;
+        tmp_seconds /= 60;
+
+        uint8_t hour = tmp_seconds % 24;
+
+        uart_putn(hour, 0);
+        uart_putc(':');
+        uart_putn(min, 0);
+        uart_putc(':');
+        uart_putn(sec, 0);
+}
 
 void uart_put_rbuf(void) {
 	// output ring buffer

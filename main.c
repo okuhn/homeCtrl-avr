@@ -5,6 +5,7 @@
 #include "config.h"
 #include "uart.h"
 #include "debounce.h"
+#include "history.h"
 
 volatile unsigned char *cmd;
 
@@ -73,23 +74,16 @@ void read_statistics(void) {
 	uart_put_rbuf();
 	cmd++;
 }
+
+void show_version() {
+	uart_version();
+	cmd++;
+}
  
 void read_time_format(void) {
-	uint32_t tmp_seconds = seconds + TZ_OFFSET;
-	
-	uint8_t sec = tmp_seconds % 60;
-	tmp_seconds /= 60;
-	
-	uint8_t min = tmp_seconds % 60;
-	tmp_seconds /= 60;
-	
-	uint8_t hour = tmp_seconds % 24;
-	
-	uart_putn(hour, 0);
-	uart_putc(':');
-	uart_putn(min, 0);
-	uart_putc(':');
-	uart_putn(sec, 1);
+        uart_put_time(seconds);
+        uart_putc('\r');
+        uart_putc('\n');
 
 	cmd++;
 }
@@ -110,9 +104,10 @@ void handle_serial(void) {
 		uint8_t error = 0;
 
 		cmd = buf;
-	
+
 		while (!error && *cmd != '\0') {
 			if (*cmd == 'l') {
+                                log_cmd(cmd);
 				error = handle_light() == 0;
 			} else if (*cmd == 'q') {
 				handle_query();
@@ -120,6 +115,11 @@ void handle_serial(void) {
 				handle_time();
 			} else if (*cmd == 's') {
 				read_statistics();
+			} else if (*cmd == 'v') {
+				show_version();
+			} else if (*cmd == 'h') {
+				log_show();
+                                cmd++;
 			} else {
 				error = 1;
 			}

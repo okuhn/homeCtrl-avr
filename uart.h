@@ -16,9 +16,11 @@ extern void uart_putps (const unsigned char *p);
 extern void uart_ok (const unsigned char *s);
 extern void uart_err (const unsigned char *s);
 extern void uart_greeting (void);
+extern void uart_version (void);
 extern void uart_putn(uint8_t val, uint8_t lf);
 extern void uart_putl(uint32_t val, uint8_t lf);
 extern void uart_prompt(void);
 extern void uart_put_rbuf(void);
+extern void uart_put_time(uint32_t seconds);
 
 #endif // __UART_H__
