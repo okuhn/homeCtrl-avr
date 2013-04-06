@@ -52,7 +52,7 @@ TARGET = homeCtrl
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = main.c uart.c debounce.c history.c light.c
+SRC = main.c uart.c debounce.c history.c light.c watchdog.c
 
 
 # List Assembler source files here.

@@ -1,6 +1,5 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <avr/wdt.h>
 #include <ctype.h>
 
 #include "config.h"
@@ -8,26 +7,11 @@
 #include "debounce.h"
 #include "history.h"
 #include "light.h"
+#include "watchdog.h"
 
-volatile unsigned char *cmd;
+volatile char *cmd;
 
 uint8_t ldr_enabled = 1;
-
-#if 0
-void reset() {
-	wdt_enable(WDTO_250MS);
-	while(1) {
-	}
-}
-
-void wdt_init(void) __attribute__((naked)) __attribute__((section(".init1")));
-
-void wdt_init(void)
-{
-    wdt_disable();
-    return;
-}
-#endif
 
 void set_time(void) {
     uint32_t tmp_seconds = 0;
@@ -67,7 +51,7 @@ void read_statistics(void) {
     uart_putl(LIGHT_PORT & (1 << 2), 1);
     uart_putc('T');
     uart_putc('=');
-    uart_putl(60*60*23+41*60, 1);
+    uart_putl(60L*60*23+41*60, 1);
     uart_putc('X');
     uart_putc('=');
     uart_putl(60L*60*23+41*60, 1);
@@ -162,7 +146,7 @@ void handle_serial(void) {
 #endif
             } else if (*cmd == 'r') {
 				cmd++;
-                // reset();
+                reset();
             } else if (*cmd == 'e') {
 				ldr_enabled = !ldr_enabled;
 				cmd++;
@@ -202,7 +186,7 @@ extern uint8_t key_press;
 void toggle(uint8_t pin, uint8_t keys) {
     uint8_t flag = keys & (1<<pin);
     if (flag) {
-        unsigned char cmd[4] = "l00";
+        char cmd[4] = "l00";
         cmd[1] += pin;
         cmd[2] += !(PORTB & flag);
         handle_light(cmd, 'b');    
@@ -237,33 +221,32 @@ void handle_keys(void) {
 #include <util/delay.h>
 
 void blink(void) {
-    LIGHT_PORT = 0x01;
+    STATUS_PORT = 0x01;
     _delay_ms(200);
-    LIGHT_PORT = 0x00;
-    _delay_ms(700);
-    LIGHT_PORT = 0x02;
+    STATUS_PORT = 0x02;
     _delay_ms(200);
-    LIGHT_PORT = 0x00;
-    _delay_ms(700);
+    STATUS_PORT = 0x01;
+    _delay_ms(200);
+    STATUS_PORT = 0x00;
 }
 
 uint8_t off_enable = 1;
 
 int main(void){
-	//wdt_disable();
+	// wdt_disable();
    
 #if INVERSE
-    LIGHT_PORT = 0x0f;
+    LIGHT_PORT = 0xff;
 #else
     LIGHT_PORT = 0x00;
 #endif
     LIGHT_DDR = 0xff;
 
-    STATUS_DDR = 0xf0;
     STATUS_PORT = 0;
+    STATUS_DDR = 0xff;
     
-    DDRD = 0x00;
-    PORTD = 0xff;
+    KEY_PORT = 0xff;
+    KEY_DDR = 0x00;
   
     blink();
     uart_init( );
@@ -286,9 +269,10 @@ int main(void){
 		handle_adc();
 #endif
       
-        uint8_t sec = seconds % 60;
 
 #if 0
+        uint8_t sec = seconds % 60;
+
         if (sec == 0) {
             PORTC |= (1<<5);
         } else if (sec == 1) {
