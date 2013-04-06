@@ -5,7 +5,7 @@
 #include "uart.h"
 #include "history.h"
 
-uint8_t handle_light(const unsigned char *cmd, unsigned char action) {
+uint8_t handle_light(const char *cmd, char action) {
     log_cmd(cmd, action);
 
     int mask = 0;
@@ -13,8 +13,8 @@ uint8_t handle_light(const unsigned char *cmd, unsigned char action) {
     
     // set bits in mask according to pins that should be changed
     if (c == '*') {
-        mask = 0x07;
-    } else if (c >= '0' && c <= '2') {
+        mask = 0xff;
+    } else if (c >= '0' && c <= '7') {
         uint8_t n = c - '0';
         mask = 1 << n;
     }
@@ -43,7 +43,13 @@ uint8_t handle_light(const unsigned char *cmd, unsigned char action) {
 }
 
 void handle_light_query(void) {
+	uint8_t port = LIGHT_PORT;
+
+#if INVERSE
+	port = ~port;
+#endif	
+	
     uart_putc('l');
     uart_putc('=');
-    uart_putl(LIGHT_PORT & 0x07, 1);
+    uart_putl(port, 1);
 }
