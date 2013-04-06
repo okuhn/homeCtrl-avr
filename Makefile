@@ -1,6 +1,6 @@
 # Hey Emacs, this is a -*- makefile -*-
 #
-# WinAVR makefile written by Eric B. Weddington, Jörg Wunsch, et al.
+# WinAVR makefile written by Eric B. Weddington, JÃ¶rg Wunsch, et al.
 # Released to the Public Domain
 # Please read the make user manual!
 #
@@ -52,7 +52,7 @@ TARGET = homeCtrl
 
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = main.c uart.c debounce.c history.c
+SRC = main.c uart.c debounce.c history.c light.c
 
 
 # List Assembler source files here.
@@ -113,8 +113,6 @@ CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS))
 CFLAGS += $(CSTANDARD)
 CFLAGS += -DF_OSC=$(F_OSC)
 
-
-
 # Assembler flags.
 #  -Wa,...:   tell GCC to pass this to the assembler.
 #  -ahlms:    create listing
@@ -165,8 +163,6 @@ EXTMEMOPTS =
 LDFLAGS = -Wl,-Map=$(TARGET).map,--cref
 LDFLAGS += $(EXTMEMOPTS)
 LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
-
-
 
 
 # Programming support using avrdude. Settings and variables.
