@@ -16,19 +16,19 @@
 #endif
 
 
-volatile unsigned char buf[BUFSIZE+1];
+volatile char buf[BUFSIZE+1];
 volatile uint8_t pos = 0;
 volatile uint8_t msg_available = 0;
 
 volatile uint32_t received = 0;
 volatile uint32_t sent = 0;
 
-const unsigned char ok_msg[] PROGMEM = " ok\r\n";
-const unsigned char err_msg[] PROGMEM = " error\r\n";
-const unsigned char hello_msg[] PROGMEM = "Welcome to homeCtrl Version " VERSION " \r\n";
-const unsigned char version_msg[] PROGMEM = "v=homeCtrl Version " VERSION " \r\nv=Built " __DATE__ " " __TIME__ "\r\n";
+const char ok_msg[] PROGMEM = " ok\r\n";
+const char err_msg[] PROGMEM = " error\r\n";
+const char hello_msg[] PROGMEM = "Welcome to homeCtrl Version " VERSION " \r\n";
+const char version_msg[] PROGMEM = "v=homeCtrl Version " VERSION " \r\nv=Built " __DATE__ " " __TIME__ "\r\n";
 
-volatile unsigned char rbuf[BUFSIZE];
+volatile char rbuf[BUFSIZE];
 volatile uint8_t rpos = 0;
 
 void uart_init(void)
@@ -46,7 +46,7 @@ void uart_init(void)
 	}
 }
 
-void uart_putc(unsigned char c)
+void uart_putc(char c)
 {
     while (!(UCSR0A & (1<<UDRE0))) {  		// wait until buffer is available
     }                             
@@ -55,25 +55,25 @@ void uart_putc(unsigned char c)
     sent++;
 }
 
-void uart_puts(const unsigned char *s) {
+void uart_puts(const char *s) {
     while (*s) {
         uart_putc(*s++);
     }
 }
 
-void uart_putps(const unsigned char *p) {
+void uart_putps(const char *p) {
     char c;
     while ((c = pgm_read_byte(p++)) != '\0') {
         uart_putc(c);
     }
 }
 
-void uart_ok(const unsigned char *s) {
+void uart_ok(const char *s) {
     uart_puts(s);
     uart_putps(ok_msg);
 } 
 
-void uart_err(const unsigned char *s) {
+void uart_err(const char *s) {
     uart_puts(s);
     uart_putps(err_msg);
 }
@@ -127,7 +127,7 @@ void uart_put_rbuf(void) {
 		if (p == BUFSIZE) {
 			p=0;
 		}
-		unsigned char c = rbuf[p++];
+		char c = rbuf[p++];
 		uart_putl(c, 0);
 		if (c >= 0x20 && c < 0x80) {
 			uart_putc('=');
@@ -173,7 +173,7 @@ void uart_prompt(void) {
 }
 
 ISR (USART_RX_vect) {
-    unsigned char c = UDR0;
+    char c = UDR0;
     received++;
     
     if (rpos == BUFSIZE) {

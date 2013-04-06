@@ -3,18 +3,18 @@
 
 #include "config.h"
 
-extern volatile unsigned char buf[BUFSIZE+1];
+extern volatile char buf[BUFSIZE+1];
 extern volatile uint8_t pos;
 extern volatile uint8_t msg_available;
 extern volatile uint32_t received;
 extern volatile uint32_t sent;
 
 extern void uart_init(void);
-extern void uart_putc(unsigned char c);
-extern void uart_puts (const unsigned char *s) ;
-extern void uart_putps (const unsigned char *p);
-extern void uart_ok (const unsigned char *s);
-extern void uart_err (const unsigned char *s);
+extern void uart_putc(char c);
+extern void uart_puts (const char *s) ;
+extern void uart_putps (const char *p);
+extern void uart_ok (const char *s);
+extern void uart_err (const char *s);
 extern void uart_greeting (void);
 extern void uart_version (void);
 extern void uart_putn(uint8_t val, uint8_t lf);
